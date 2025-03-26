@@ -15,11 +15,11 @@ class FoodCategory
 
     #[ORM\ManyToOne(inversedBy: 'foodCategories')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?food $food = null;
+    private ?Food $food = null;
 
     #[ORM\ManyToOne(inversedBy: 'foodCategories')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?category $caterogy = null;
+    private ?Category $caterogy = null;
 
     public function getId(): ?int
     {

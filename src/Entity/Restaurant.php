@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RestaurantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -42,7 +43,7 @@ class Restaurant
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $owner = null;
+    private ?User $owner = null;
 
     /**
      * @var Collection<int, Picture>
@@ -64,6 +65,7 @@ class Restaurant
 
     public function __construct()
     {
+        $this->uuid = Uuid::v4()->toRfc4122(); 
         $this->pictures = new ArrayCollection();
         $this->menus = new ArrayCollection();
         $this->bookings = new ArrayCollection();
