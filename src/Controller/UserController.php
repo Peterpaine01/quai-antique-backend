@@ -52,6 +52,8 @@ class UserController extends AbstractController
         return $this->json([
             'id' => $user->getId(),
             'email' => $user->getEmail(),
+            'firstName' => $user->getFirstName(),
+            'bookings' => $user->getBookings(),
             'roles' => $user->getRoles(),
             'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
         ]);

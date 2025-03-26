@@ -21,7 +21,7 @@ class RestaurantController extends AbstractController
     }
 
     #[Route('/create', name: 'create', methods: 'POST')]
-    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function new(Request $request, EntityManagerInterface $manager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -40,7 +40,7 @@ class RestaurantController extends AbstractController
         $restaurant->setUpdatedAt(null);
 
         // Gestion de l'owner_id (relation avec User)
-        $owner = $entityManager->getRepository(User::class)->find($data['owner_id']);
+        $owner = $manager->getRepository(User::class)->find($data['owner_id']);
         if (!$owner) {
             return new JsonResponse(
                 ['error' => 'Invalid owner_id'],
@@ -54,8 +54,8 @@ class RestaurantController extends AbstractController
         $restaurant->setPmOpeningTime(isset($data['pm_opening_time']) ? $data['pm_opening_time'] : null);
 
         // Sauvegarde en base
-        $entityManager->persist($restaurant);
-        $entityManager->flush();
+        $manager->persist($restaurant);
+        $manager->flush();
 
         return new JsonResponse(
             ['message' => "Restaurant created with ID {$restaurant->getId()}"],
@@ -72,13 +72,21 @@ class RestaurantController extends AbstractController
             throw $this->createNotFoundException("No Restaurant found for {$id} id");
         }
 
-        return new JsonResponse(
-            ['message' => "A Restaurant was found: {$restaurant->getName()} for {$restaurant->getId()} id"]
-        );
+        return $this->json([
+            'id' => $restaurant->getId(),
+            'Name' => $restaurant->getName(),
+            'Description' => $restaurant->getDescription(),
+            'amOpeningTime' => $restaurant->getAmOpeningTime(),
+            'pmOpeningTime' => $restaurant->getPmOpeningTime(),
+            'maxGuest' => $restaurant->getMaxGuest(),
+            'pictures' => $restaurant->getPictures(),
+            'createdAt' => $restaurant->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updatedAt' => $restaurant->getUpdatedAt() ? $restaurant->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+        ]);
     }
 
     #[Route('/edit/{id}', name: 'edit', methods: 'PUT')]
-    public function edit(int $id): RedirectResponse
+    public function edit(int $id, Request $request): RedirectResponse
     {
         $restaurant = $this->repository->findOneBy(['id' => $id]);
 
@@ -86,7 +94,27 @@ class RestaurantController extends AbstractController
             throw $this->createNotFoundException("No Restaurant found for {$id} id");
         }
 
-        $restaurant->setName('Restaurant name updated');
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['name'])) {
+            $restaurant->setName($data['name']);
+        }
+        if (isset($data['description'])) {
+            $restaurant->setDescription($data['description']);
+        }
+        if (isset($data['max_guest'])) {
+            $restaurant->setMaxGuest($data['max_guest']);
+        }
+        if (isset($data['am_opening_time'])) {
+            $restaurant->setAmOpeningTime($data['am_opening_time']);
+        }
+        if (isset($data['pm_opening_time'])) {
+            $restaurant->setPmOpeningTime($data['pm_opening_time']);
+        }
+
+        // Mise à jour du champ "updated_at"
+        $restaurant->setUpdatedAt(new \DateTimeImmutable());
+
         $this->manager->flush();
 
         return $this->redirectToRoute('app_api_restaurant_show', ['id' => $restaurant->getId()]);
