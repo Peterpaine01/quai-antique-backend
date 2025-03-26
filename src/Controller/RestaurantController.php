@@ -112,7 +112,6 @@ class RestaurantController extends AbstractController
             $restaurant->setPmOpeningTime($data['pm_opening_time']);
         }
 
-        // Mise à jour du champ "updated_at"
         $restaurant->setUpdatedAt(new \DateTimeImmutable());
 
         $this->manager->flush();
@@ -124,15 +123,16 @@ class RestaurantController extends AbstractController
     public function delete(int $id): JsonResponse
     {
         $restaurant = $this->repository->findOneBy(['id' => $id]);
+
         if (!$restaurant) {
-            throw $this->createNotFoundException("No Restaurant found for {$id} id");
+            return new JsonResponse(['error' => "No Restaurant found for {$id}"], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $this->manager->remove($restaurant);
         $this->manager->flush();
 
         return new JsonResponse(
-            ['message' => "Restaurant resource deleted"],
+            ['message' => "Restaurant deleted successfully"],
             JsonResponse::HTTP_NO_CONTENT
         );
     }
