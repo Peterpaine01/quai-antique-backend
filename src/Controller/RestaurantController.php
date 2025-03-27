@@ -6,18 +6,23 @@ use App\Entity\Restaurant;
 use App\Repository\RestaurantRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
+use Symfony\Component\Serializer\SerializerInterface; 
 
 #[Route('api/restaurant', name: 'app_api_restaurant_')]
 class RestaurantController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $manager, private RestaurantRepository $repository)
+    private $serializer;
+
+    public function __construct(private EntityManagerInterface $manager, private RestaurantRepository $repository, SerializerInterface $serializer)
     {
+        $this->serializer = $serializer;
     }
 
     #[Route('/create', name: 'create', methods: 'POST')]
@@ -39,7 +44,6 @@ class RestaurantController extends AbstractController
         $restaurant->setCreatedAt(new \DateTimeImmutable());
         $restaurant->setUpdatedAt(null);
 
-        // Gestion de l'owner_id (relation avec User)
         $owner = $manager->getRepository(User::class)->find($data['owner_id']);
         if (!$owner) {
             return new JsonResponse(
@@ -49,40 +53,43 @@ class RestaurantController extends AbstractController
         }
         $restaurant->setOwner($owner);
 
-        // Tableau horaires d'ouverture
         $restaurant->setAmOpeningTime(isset($data['am_opening_time']) ? $data['am_opening_time'] : null);
         $restaurant->setPmOpeningTime(isset($data['pm_opening_time']) ? $data['pm_opening_time'] : null);
 
-        // Sauvegarde en base
         $manager->persist($restaurant);
         $manager->flush();
 
+        $restaurantData = $this->serializer->serialize($restaurant, 'json', ['groups' => 'restaurant:read']);
+        $location = $this->generateUrl(
+            'app_api_restaurant_show',
+            ['id' => $restaurant->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
         return new JsonResponse(
-            ['message' => "Restaurant created with ID {$restaurant->getId()}"],
-            JsonResponse::HTTP_CREATED
+            [
+                'message' => "Restaurant created with ID {$restaurant->getId()}",
+                'data' => json_decode($restaurantData, true) 
+            ],
+            JsonResponse::HTTP_CREATED,
+            ["Location" => $location]
         );
     }
 
-    #[Route('/show/{id}', name: 'show', methods: 'GET' )]
+    #[Route('/show/{id}', name: 'show', methods: 'GET')]
     public function show(int $id): JsonResponse
     {
         $restaurant = $this->repository->findOneBy(['id' => $id]);
 
         if (!$restaurant) {
-            throw $this->createNotFoundException("No Restaurant found for {$id} id");
+            return new JsonResponse(
+                ['error' => "No Restaurant found for {$id}"],
+                JsonResponse::HTTP_NOT_FOUND
+            );
         }
+        $restaurantData = $this->serializer->serialize($restaurant, 'json', ['groups' => 'restaurant:read']);
 
-        return $this->json([
-            'id' => $restaurant->getId(),
-            'Name' => $restaurant->getName(),
-            'Description' => $restaurant->getDescription(),
-            'amOpeningTime' => $restaurant->getAmOpeningTime(),
-            'pmOpeningTime' => $restaurant->getPmOpeningTime(),
-            'maxGuest' => $restaurant->getMaxGuest(),
-            'pictures' => $restaurant->getPictures(),
-            'createdAt' => $restaurant->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updatedAt' => $restaurant->getUpdatedAt() ? $restaurant->getUpdatedAt()->format('Y-m-d H:i:s') : null,
-        ]);
+        return new JsonResponse($restaurantData, JsonResponse::HTTP_OK, [], true);
     }
 
     #[Route('/edit/{id}', name: 'edit', methods: 'PUT')]
@@ -125,7 +132,10 @@ class RestaurantController extends AbstractController
         $restaurant = $this->repository->findOneBy(['id' => $id]);
 
         if (!$restaurant) {
-            return new JsonResponse(['error' => "No Restaurant found for {$id}"], JsonResponse::HTTP_NOT_FOUND);
+            return new JsonResponse(
+                ['error' => "No Restaurant found for {$id}"],
+                JsonResponse::HTTP_NOT_FOUND
+            );
         }
 
         $this->manager->remove($restaurant);

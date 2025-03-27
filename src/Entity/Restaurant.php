@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\RestaurantRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
@@ -15,34 +16,44 @@ class Restaurant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('restaurant:read')]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
+    #[Groups('restaurant:read')]
     private ?string $uuid = null;
 
     #[ORM\Column(length: 32)]
+    #[Groups('restaurant:read')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups('restaurant:read')]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups('restaurant:read')]
     private ?array $amOpeningTime = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups('restaurant:read')]
     private ?array $pmOpeningTime = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
+    #[Groups('restaurant:read')]
     private ?int $maxGuest = null;
 
     #[ORM\Column]
+    #[Groups('restaurant:read')]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups('restaurant:read')]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups('restaurant:read')]
     private ?User $owner = null;
 
     /**
