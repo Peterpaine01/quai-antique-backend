@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PictureRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,22 +13,28 @@ class Picture
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['picture:read', 'restaurant:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 128)]
+    #[Groups(['picture:read', 'restaurant:read', 'picture:write'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 128)]
+    #[Groups(['picture:read', 'restaurant:read', 'picture:write'])]
     private ?string $slug = null;
 
     #[ORM\Column]
+    #[Groups(['picture:read', 'restaurant:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['picture:read', 'restaurant:read', 'picture:write'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'pictures')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['picture:read'])]
     private ?Restaurant $restaurant = null;
 
     public function getId(): ?int

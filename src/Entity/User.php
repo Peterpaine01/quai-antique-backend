@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $uuid = null;
 
     #[ORM\Column(length: 64, nullable: true)]
-    #[Groups(['user:read', 'user:write', 'restaurant:read'])]
+    #[Groups(['user:read', 'user:write', 'restaurant:read', 'picture:read'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
@@ -60,7 +60,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(length: 32, nullable: true)]
-    #[Groups(['user:read', 'user:write', 'restaurant:read'])]
+    #[Groups(['user:read', 'user:write', 'restaurant:read', 'picture:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255, nullable: true)]

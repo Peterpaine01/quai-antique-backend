@@ -16,15 +16,15 @@ class Restaurant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['restaurant:read'])]
+    #[Groups(['restaurant:read', 'picture:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
-    #[Groups(['restaurant:read'])]
+    #[Groups(['restaurant:read', 'picture:read'])]
     private ?string $uuid = null;
 
     #[ORM\Column(length: 32)]
-    #[Groups(['restaurant:read', 'restaurant:write'])]
+    #[Groups(['restaurant:read', 'restaurant:write', 'picture:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -53,7 +53,7 @@ class Restaurant
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'picture:read'])]
     private ?User $owner = null;
 
     /**
