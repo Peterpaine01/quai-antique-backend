@@ -10,13 +10,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Serializer\SerializerInterface; 
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('api/user', name: 'app_api_user_')]
 class UserController extends AbstractController
 {
+    private $serializer;
 
-    public function __construct(private EntityManagerInterface $manager, private UserRepository $repository)
+    public function __construct(private EntityManagerInterface $manager, private UserRepository $repository, SerializerInterface $serializer)
     {
+        $this->serializer = $serializer;
     }
 
     #[Route('/create', name: 'create', methods: ['POST'])]
@@ -36,8 +40,22 @@ class UserController extends AbstractController
 
         $entityManager->persist($user);
         $entityManager->flush();
+        $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
+        $location = $this->generateUrl(
+            'app_api_user_show',
+            ['id' => $user->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
 
-        return $this->json(['message' => 'User created successfully', 'id' => $user->getId()], JsonResponse::HTTP_CREATED);
+        return new JsonResponse(
+            [
+                'message' => "User created with ID {$user->getId()}",
+                'data' => json_decode($userData, true) 
+            ],
+            JsonResponse::HTTP_CREATED,
+            ["Location" => $location]
+        );
+
     }
 
     #[Route('/show/{id}', name: 'show', methods: ['GET'])]
@@ -49,36 +67,22 @@ class UserController extends AbstractController
             return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        return $this->json([
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'firstName' => $user->getFirstName(),
-            'bookings' => $user->getBookings(),
-            'roles' => $user->getRoles(),
-            'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
-        ]);
+        $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
+
+        return new JsonResponse($userData, JsonResponse::HTTP_OK, [], true);
     }
 
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(UserRepository $userRepository): JsonResponse
     {
         $users = $userRepository->findAll();
-        $data = [];
+        $data = $this->serializer->serialize($users, 'json', ['groups' => 'user:read']);
 
-        foreach ($users as $user) {
-            $data[] = [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'roles' => $user->getRoles(),
-                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
-            ];
-        }
-
-        return $this->json($data);
+        return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
     }
 
     #[Route('/edit/{id}', name: 'edit', methods: ['PUT'])]
-    public function update(Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository, int $id): JsonResponse
+    public function update(Request $request, EntityManagerInterface $manager, UserRepository $userRepository, int $id): JsonResponse
     {
         $user = $userRepository->find($id);
 
@@ -97,13 +101,13 @@ class UserController extends AbstractController
 
         $user->setUpdatedAt(new \DateTime());
 
-        $entityManager->flush();
+        $manager->flush();
 
         return $this->json(['message' => 'User updated successfully']);
     }
 
     #[Route('/delete/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(EntityManagerInterface $entityManager, UserRepository $userRepository, int $id): JsonResponse
+    public function delete(EntityManagerInterface $manager, UserRepository $userRepository, int $id): JsonResponse
     {
         $user = $userRepository->find($id);
 
@@ -111,8 +115,8 @@ class UserController extends AbstractController
             return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $entityManager->remove($user);
-        $entityManager->flush();
+        $manager->remove($user);
+        $manager->flush();
 
         return $this->json(['message' => 'User deleted successfully']);
     }

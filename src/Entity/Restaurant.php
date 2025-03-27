@@ -16,31 +16,31 @@ class Restaurant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read'])]
     private ?string $uuid = null;
 
     #[ORM\Column(length: 32)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'restaurant:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'restaurant:write'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'restaurant:write'])]
     private ?array $amOpeningTime = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'restaurant:write'])]
     private ?array $pmOpeningTime = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'restaurant:write'])]
     private ?int $maxGuest = null;
 
     #[ORM\Column]
@@ -48,7 +48,7 @@ class Restaurant
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups('restaurant:read')]
+    #[Groups(['restaurant:read', 'restaurant:write'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne]
@@ -60,18 +60,21 @@ class Restaurant
      * @var Collection<int, Picture>
      */
     #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'restaurant', orphanRemoval: true)]
+    #[Groups('restaurant:read')]
     private Collection $pictures;
 
     /**
      * @var Collection<int, Menu>
      */
     #[ORM\OneToMany(targetEntity: Menu::class, mappedBy: 'restaurant', orphanRemoval: true)]
+    #[Groups('restaurant:read')]
     private Collection $menus;
 
     /**
      * @var Collection<int, Booking>
      */
     #[ORM\OneToMany(targetEntity: Booking::class, mappedBy: 'restaurant', orphanRemoval: true)]
+    #[Groups('restaurant:read')]
     private Collection $bookings;
 
     public function __construct()
