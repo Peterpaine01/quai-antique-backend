@@ -108,8 +108,9 @@ class Menu
         return $this->price;
     }
 
-    public function setPrice(float $price): static
+    public function setPrice(float|string $price): static
 {
+    dump($price);
     $this->price = $price;
     return $this;
 }

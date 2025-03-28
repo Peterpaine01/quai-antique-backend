@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('api/menu', name: 'app_api_menu_')]
@@ -85,5 +86,72 @@ class MenuController extends AbstractController
         $data = $this->serializer->serialize($menu, 'json', ['groups' => 'menu:read']);
         return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
     }
+
+    #[Route('/list', name: 'list', methods: ['GET'])]
+    public function list(): JsonResponse
+    {
+        $menus = $this->menuRepository->findAll();
+
+        if (!$menus) {
+            return $this->json(['error' => 'No menus found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = $this->serializer->serialize($menus, 'json', ['groups' => 'menu:read']);
+        return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
+    }
+
+    #[Route('/edit/{id}', name: 'edit', methods: ['PUT'])]
+    public function edit(Request $request, int $id): JsonResponse
+    {
+        $menu = $this->menuRepository->find($id);
+
+        if (!$menu) {
+            return $this->json(['error' => 'Menu not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['title'])) {
+            $menu->setTitle($data['title']);
+        }
+
+        if (isset($data['description'])) {
+            $menu->setDescription($data['description']);
+        }
+
+        if (isset($data['price'])) {
+            $menu->setPrice((float) $data['price']);
+        }
+
+        if (isset($data['restaurant'])) {
+            $restaurant = $this->restaurantRepository->find($data['restaurant']);
+            if ($restaurant) {
+                $menu->setRestaurant($restaurant);
+            }
+        }
+
+        $menu->setUpdatedAt(new \DateTimeImmutable());
+
+        $this->manager->flush();
+
+        $menuData = $this->serializer->serialize($menu, 'json', ['groups' => 'menu:read']);
+        return new JsonResponse($menuData, JsonResponse::HTTP_OK, [], true);
+    }
+
+    #[Route('/delete/{id}', name: 'menu_delete', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
+    {
+        $menu = $this->menuRepository->find($id);
+
+        if (!$menu) {
+            return $this->json(['error' => 'Menu not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $this->manager->remove($menu);
+        $this->manager->flush();
+
+        return $this->json(['message' => 'Menu deleted successfully'], JsonResponse::HTTP_OK);
+    }
+
 }
  
