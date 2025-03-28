@@ -25,8 +25,8 @@ class Food
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $price = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?float $price = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -86,17 +86,16 @@ class Food
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(int $price): static
-    {
-        $this->price = $price;
-
-        return $this;
-    }
+    public function setPrice(float $price): static
+{
+    $this->price = $price;
+    return $this;
+}
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {

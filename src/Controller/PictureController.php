@@ -3,19 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Picture;
-use App\Entity\Restaurant;
 use App\Repository\PictureRepository;
 use App\Repository\RestaurantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Cloudinary\Cloudinary;
-use Cloudinary\Api\Upload\UploadApi;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('api/picture', name: 'app_api_picture_')]

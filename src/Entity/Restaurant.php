@@ -16,7 +16,7 @@ class Restaurant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['restaurant:read', 'picture:read'])]
+    #[Groups(['restaurant:read', 'picture:read', 'menu:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
@@ -24,7 +24,7 @@ class Restaurant
     private ?string $uuid = null;
 
     #[ORM\Column(length: 32)]
-    #[Groups(['restaurant:read', 'restaurant:write', 'picture:read'])]
+    #[Groups(['restaurant:read', 'restaurant:write', 'picture:read', 'menu:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

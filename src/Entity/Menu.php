@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\MenuRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,38 +16,48 @@ class Menu
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['restaurant:read', 'menu:read', 'menu:list'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
+    #[Groups(['restaurant:read', 'menu:read', 'menu:list'])]
     private ?string $uuid = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['restaurant:read', 'menu:read', 'menu:list', 'menu:write'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['restaurant:read', 'menu:read', 'menu:write'])]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $price = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Groups(['restaurant:read', 'menu:read', 'menu:list', 'menu:write'])]
+    private ?float $price = null;
 
     #[ORM\Column]
+    #[Groups(['menu:read', 'menu:list'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['menu:read', 'menu:list'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'menus')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['menu:read'])]
     private ?Restaurant $restaurant = null;
 
     /**
      * @var Collection<int, MenuCategory>
      */
     #[ORM\OneToMany(targetEntity: MenuCategory::class, mappedBy: 'menu', orphanRemoval: true)]
+    #[Groups(['restaurant:read', 'menu:read', 'menu:list', 'menu:write'])]
     private Collection $menuCategories;
 
     public function __construct()
     {
+        $this->uuid = Uuid::v4()->toRfc4122(); 
         $this->menuCategories = new ArrayCollection();
     }
 
@@ -91,17 +103,16 @@ class Menu
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(int $price): static
-    {
-        $this->price = $price;
-
-        return $this;
-    }
+    public function setPrice(float $price): static
+{
+    $this->price = $price;
+    return $this;
+}
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
