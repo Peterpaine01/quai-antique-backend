@@ -74,10 +74,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private Collection $bookings;
 
+    #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
+    private ?string $apiToken = null;
+
     public function __construct()
     {
         $this->uuid = Uuid::v4()->toRfc4122(); 
         $this->bookings = new ArrayCollection();
+        $this->apiToken= bin2hex((random_bytes(20)));
     }
 
     public function getId(): ?int
@@ -267,6 +272,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $booking->setClient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(string $apiToken): static
+    {
+        $this->apiToken = $apiToken;
 
         return $this;
     }

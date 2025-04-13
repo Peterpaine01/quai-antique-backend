@@ -17,16 +17,17 @@ security:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
     main:
+      custom_authenticators: App\Security\ApiTokenAuthenticator
       lazy: true
-            provider: app_user_provider
-            json_login:
-                check_path: api_login
-                username_path: email
-                password_path: password
-            logout:
-                path: api_logout
-                invalidate_session: true
-            stateless: true
+      provider: app_user_provider
+      logout:
+        path: app_api_logout
+        invalidate_session: true
+      stateless: true
+
+  monolog:
+    channels:
+      [security]
 
       # activate different ways to authenticate
       # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -37,6 +38,40 @@ security:
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
   access_control:
-    # - { path: ^/admin, roles: ROLE_ADMIN }
-    # - { path: ^/profile, roles: ROLE_USER }
-    - { path: ^/api/picture/create, roles: ROLE_USER }
+    # Menu
+    - { path: ^/api/menu/create, roles: ROLE_ADMIN }
+    - { path: ^/api/menu/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/menu/list, roles: PUBLIC_ACCESS }
+    - { path: ^/api/menu/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/menu/delete/\d+, roles: ROLE_ADMIN }
+
+    # Galerie
+    - { path: ^/api/picture/create, roles: ROLE_ADMIN }
+    - { path: ^/api/picture/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/picture/list, roles: PUBLIC_ACCESS }
+    - { path: ^/api/picture/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/picture/delete/\d+, roles: ROLE_ADMIN }
+
+    # Restaurant
+    - { path: ^/api/restaurant/create, roles: ROLE_ADMIN }
+    - { path: ^/api/restaurant/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/restaurant/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/restaurant/delete/\d+, roles: ROLE_ADMIN }
+
+    # Auth & Public
+    - { path: ^/api/registration, roles: PUBLIC_ACCESS }
+    - { path: ^/api/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+
+    # Users
+    - { path: ^/api/user/create, roles: PUBLIC_ACCESS }
+    - { path: ^/api/user/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/user/list, roles: ROLE_ADMIN }
+    - { path: ^/api/user/edit/\d+, roles: ROLE_USER }
+    - { path: ^/api/user/delete/\d+, roles: ROLE_ADMIN }
+
+    # Logout (optionnel, selon ton implémentation)
+    - { path: ^/api/logout, roles: ROLE_USER }
+
+  role_hierarchy:
+    ROLE_ADMIN: [ROLE_USER]
