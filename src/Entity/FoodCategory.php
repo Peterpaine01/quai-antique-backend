@@ -19,33 +19,33 @@ class FoodCategory
 
     #[ORM\ManyToOne(inversedBy: 'foodCategories')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Category $caterogy = null;
+    private ?Category $category = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getFood(): ?food
+    public function getFood(): ?Food
     {
         return $this->food;
     }
 
-    public function setFood(?food $food): static
+    public function setFood(?Food $food): static
     {
         $this->food = $food;
 
         return $this;
     }
 
-    public function getCaterogy(): ?category
+    public function getCategory(): ?Category
     {
-        return $this->caterogy;
+        return $this->category;
     }
 
-    public function setCaterogy(?category $caterogy): static
+    public function setCategory(?Category $category): static
     {
-        $this->caterogy = $caterogy;
+        $this->category = $category;
 
         return $this;
     }

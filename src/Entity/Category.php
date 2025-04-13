@@ -48,7 +48,7 @@ class Category
     /**
      * @var Collection<int, FoodCategory>
      */
-    #[ORM\OneToMany(targetEntity: FoodCategory::class, mappedBy: 'caterogy', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: FoodCategory::class, mappedBy: 'category', orphanRemoval: true)]
     private Collection $foodCategories;
 
     public function __construct()
@@ -164,7 +164,7 @@ class Category
     {
         if (!$this->foodCategories->contains($foodCategory)) {
             $this->foodCategories->add($foodCategory);
-            $foodCategory->setCaterogy($this);
+            $foodCategory->setCategory($this);
         }
 
         return $this;
@@ -174,8 +174,8 @@ class Category
     {
         if ($this->foodCategories->removeElement($foodCategory)) {
             // set the owning side to null (unless already changed)
-            if ($foodCategory->getCaterogy() === $this) {
-                $foodCategory->setCaterogy(null);
+            if ($foodCategory->getCategory() === $this) {
+                $foodCategory->setCategory(null);
             }
         }
 
