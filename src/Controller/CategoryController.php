@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
 
 #[Route('/api/category', name: 'api_category_')]
 class CategoryController extends AbstractController
@@ -44,8 +46,14 @@ class CategoryController extends AbstractController
 
         $this->manager->persist($category);
         $this->manager->flush();
+        $categoryData = $this->serializer->serialize($category, 'json', ['groups' => 'category:read']);
+        $location = $this->generateUrl('api_category_show', ['id' => $category->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return new JsonResponse(['message' => 'Category created', 'uuid' => $category->getUuid()], JsonResponse::HTTP_CREATED);
+
+        return new JsonResponse([
+            'message' => "Category created with ID {$category->getId()}",
+            'data' => json_decode($categoryData, true) 
+        ], JsonResponse::HTTP_CREATED, ["Location" => $location]);
     }
 
     #[Route('/edit/{id}', name: 'edit', methods: ['PUT', 'PATCH'])]
