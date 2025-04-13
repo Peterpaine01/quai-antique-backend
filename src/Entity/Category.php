@@ -17,22 +17,26 @@ class Category
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['category:read'])]
-
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
+    #[Groups(['category:read'])]
     private ?string $uuid = null;
 
     #[ORM\Column(length: 64)]
+    #[Groups(['category:read'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 32)]
+    #[Groups(['category:read'])]
     private ?string $icon = null;
 
     #[ORM\Column]
+    #[Groups(['category:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['category:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     /**

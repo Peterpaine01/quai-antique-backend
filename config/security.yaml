@@ -73,5 +73,19 @@ security:
     # Logout (optionnel, selon ton implémentation)
     - { path: ^/api/logout, roles: ROLE_USER }
 
+    #Category
+    - { path: ^/api/category/create, roles: PUBLIC_ADMIN }
+    - { path: ^/api/category/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/category/list, roles: ROLE_ADMIN }
+    - { path: ^/api/category/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/category/delete/\d+, roles: ROLE_ADMIN }
+
+    #Food
+    - { path: ^/api/food/create, roles: PUBLIC_ADMIN }
+    - { path: ^/api/food/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/food/list, roles: ROLE_ADMIN }
+    - { path: ^/api/food/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/food/delete/\d+, roles: ROLE_ADMIN }
+
   role_hierarchy:
     ROLE_ADMIN: [ROLE_USER]
