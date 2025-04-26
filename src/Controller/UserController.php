@@ -43,33 +43,19 @@ class UserController extends AbstractController
         $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
         $location = $this->generateUrl(
             'app_api_user_show',
-            ['id' => $user->getId()],
+            ['uuid' => $user->getUuid()],
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
         return new JsonResponse(
             [
-                'message' => "User created with ID {$user->getId()}",
+                'message' => "User created with UUID {$user->getUuid()}",
                 'data' => json_decode($userData, true) 
             ],
             JsonResponse::HTTP_CREATED,
             ["Location" => $location]
         );
 
-    }
-
-    #[Route('/show/{id}', name: 'show', methods: ['GET'])]
-    public function show(UserRepository $userRepository, int $id): JsonResponse
-    {
-        $user = $userRepository->find($id);
-
-        if (!$user) {
-            return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
-        }
-
-        $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
-
-        return new JsonResponse($userData, JsonResponse::HTTP_OK, [], true);
     }
 
     #[Route('/list', name: 'list', methods: ['GET'])]
@@ -81,10 +67,35 @@ class UserController extends AbstractController
         return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
     }
 
-    #[Route('/edit/{id}', name: 'edit', methods: ['PUT'])]
-    public function update(Request $request, EntityManagerInterface $manager, UserRepository $userRepository, int $id): JsonResponse
+    #[Route('/show/{uuid}', name: 'show', methods: ['GET'])]
+    public function show(UserRepository $userRepository, string $uuid): JsonResponse
     {
-        $user = $userRepository->find($id);
+        $user = $userRepository->findOneBy(['uuid' => $uuid]);
+
+        if (!$user) {
+            return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
+
+        return new JsonResponse($userData, JsonResponse::HTTP_OK, [], true);
+    }
+
+    #[Route('/edit/{uuid}', name: 'edit', methods: ['PUT', 'PATCH'])]
+    public function update(Request $request, UserRepository $userRepository, string $uuid): JsonResponse
+    {
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->json(['error' => 'Authentication required'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        if ($currentUser->getUuid() !== $uuid) {
+            return $this->json(['error' => 'Access denied: you can only edit your own account'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $user = $userRepository->findOneBy(['uuid' => $uuid]);
 
         if (!$user) {
             return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
@@ -95,29 +106,58 @@ class UserController extends AbstractController
         if (isset($data['email'])) {
             $user->setEmail($data['email']);
         }
+        if (isset($data['firstName'])) {
+            $user->setFirstName($data['firstName']);
+        }
+        if (isset($data['lastName'])) {
+            $user->setLastName($data['lastName']);
+        }
+        if (isset($data['guestNumber'])) {
+            $user->setGuestNumber($data['guestNumber']);
+        }
+        if (isset($data['allergy'])) {
+            $user->setAllergy($data['allergy']);
+        }
         if (isset($data['roles'])) {
-            $user->setRoles($data['roles']);
+            if (in_array('ROLE_ADMIN', $currentUser->getRoles(), true)) {
+                // Autorisé pour ADMIN uniquement
+                $user->setRoles($data['roles']);
+            } else {
+                return $this->json(['error' => 'You are not allowed to change your roles'], JsonResponse::HTTP_FORBIDDEN);
+            }
         }
 
         $user->setUpdatedAt(new \DateTime());
 
-        $manager->flush();
+        $this->manager->flush();
 
         return $this->json(['message' => 'User updated successfully']);
     }
 
-    #[Route('/delete/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(EntityManagerInterface $manager, UserRepository $userRepository, int $id): JsonResponse
+
+    #[Route('/delete/{uuid}', name: 'delete', methods: ['DELETE'])]
+    public function delete(UserRepository $userRepository, string $uuid): JsonResponse
     {
-        $user = $userRepository->find($id);
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->json(['error' => 'Authentication required'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        if (!in_array('ROLE_ADMIN', $currentUser->getRoles())) {
+            return $this->json(['error' => 'Access denied: You do not have permission to delete users'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $user = $userRepository->findOneBy(['uuid' => $uuid]);
 
         if (!$user) {
             return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $manager->remove($user);
-        $manager->flush();
+        $this->manager->remove($user);
+        $this->manager->flush();
 
         return $this->json(['message' => 'User deleted successfully']);
     }
+
 }
