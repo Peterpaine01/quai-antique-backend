@@ -34,8 +34,7 @@ class MenuController extends AbstractController
     public function create(Request $request, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        dump('price', $data['price']);
-
+        
         if (!isset($data['title'], $data['description'], $data['price'], $data['restaurant'])) {
             return $this->json(['error' => 'Missing required fields'], JsonResponse::HTTP_BAD_REQUEST);
         }
@@ -45,13 +44,20 @@ class MenuController extends AbstractController
             return $this->json(['error' => 'Restaurant not found'], JsonResponse::HTTP_NOT_FOUND);
         }
 
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+
+        // Vérifier que l'utilisateur actuel est l'admin du restaurant
+        if ($restaurant->getOwner()->getId() !== $currentUser->getId()) {
+            return $this->json(['error' => 'You are not the admin of this restaurant'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
         $menu = new Menu();
         $menu->setTitle($data['title']);
         $menu->setDescription($data['description']);
         $menu->setPrice($data['price']);
         $menu->setRestaurant($restaurant);
         $menu->setCreatedAt(new \DateTimeImmutable());
-
 
         $errors = $validator->validate($menu);
         if (count($errors) > 0) {
@@ -73,6 +79,7 @@ class MenuController extends AbstractController
             'data' => json_decode($menuData, true) 
         ], JsonResponse::HTTP_CREATED, ["Location" => $location]);
     }
+
 
     #[Route('/show/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id): JsonResponse
