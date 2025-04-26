@@ -26,9 +26,7 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
      * to be skipped.
      */
     public function __construct(private UserRepository $repository){
-    }
-
-    
+    }   
 
     public function supports(Request $request): ?bool
     {
