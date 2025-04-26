@@ -45,7 +45,28 @@ security:
     - { path: ^/api/menu/edit/\d+, roles: ROLE_ADMIN }
     - { path: ^/api/menu/delete/\d+, roles: ROLE_ADMIN }
 
-    # Galerie
+    # MenuCategory
+    - { path: ^/api/menucategory/create, roles: ROLE_ADMIN }
+    - { path: ^/api/menucategory/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/menucategory/list, roles: PUBLIC_ACCESS }
+    - { path: ^/api/menucategory/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/menucategory/delete/\d+, roles: ROLE_ADMIN }
+
+    # FoodCategory
+    - { path: ^/api/foodcategory/create, roles: ROLE_ADMIN }
+    - { path: ^/api/foodcategory/show/\d+, roles: PUBLIC_ACCESS }
+    - { path: ^/api/foodcategory/list, roles: PUBLIC_ACCESS }
+    - { path: ^/api/foodcategory/edit/\d+, roles: ROLE_ADMIN }
+    - { path: ^/api/foodcategory/delete/\d+, roles: ROLE_ADMIN }
+
+    # Booking
+    - { path: ^/api/booking/create, roles: ROLE_USER }
+    - { path: ^/api/booking/show/\d+, roles: ROLE_USER }
+    - { path: ^/api/booking/list, roles: ROLE_ADMIN }
+    - { path: ^/api/booking/edit/\d+, roles: ROLE_USER }
+    - { path: ^/api/booking/delete/\d+, roles: ROLE_USER }
+
+    # Picture
     - { path: ^/api/picture/create, roles: ROLE_ADMIN }
     - { path: ^/api/picture/show/\d+, roles: PUBLIC_ACCESS }
     - { path: ^/api/picture/list, roles: PUBLIC_ACCESS }
@@ -70,17 +91,17 @@ security:
     - { path: ^/api/user/edit/\d+, roles: ROLE_USER }
     - { path: ^/api/user/delete/\d+, roles: ROLE_ADMIN }
 
-    # Logout (optionnel, selon ton implémentation)
+    # Logout (optionnel)
     - { path: ^/api/logout, roles: ROLE_USER }
 
-    #Category
+    # Category
     - { path: ^/api/category/create, roles: PUBLIC_ADMIN }
     - { path: ^/api/category/show/\d+, roles: PUBLIC_ACCESS }
     - { path: ^/api/category/list, roles: ROLE_ADMIN }
     - { path: ^/api/category/edit/\d+, roles: ROLE_ADMIN }
     - { path: ^/api/category/delete/\d+, roles: ROLE_ADMIN }
 
-    #Food
+    # Food
     - { path: ^/api/food/create, roles: PUBLIC_ADMIN }
     - { path: ^/api/food/show/\d+, roles: PUBLIC_ACCESS }
     - { path: ^/api/food/list, roles: ROLE_ADMIN }

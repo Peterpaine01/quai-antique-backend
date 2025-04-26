@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BookingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 class Booking
@@ -12,35 +13,45 @@ class Booking
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['booking:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
+    #[Groups(['booking:read'])]
     private ?string $uuid = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
+    #[Groups(['booking:read'])]
     private ?int $guestNumber = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['booking:read'])]
     private ?\DateTimeInterface $orderDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['booking:read'])]
     private ?\DateTimeInterface $orderHour = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['booking:read'])]
     private ?string $allergy = null;
 
     #[ORM\Column]
+    #[Groups(['booking:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['booking:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['booking:read'])]
     private ?Restaurant $restaurant = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['booking:read'])]
     private ?User $client = null;
 
     public function getId(): ?int
@@ -132,24 +143,24 @@ class Booking
         return $this;
     }
 
-    public function getRestaurant(): ?restaurant
+    public function getRestaurant(): ?Restaurant
     {
         return $this->restaurant;
     }
 
-    public function setRestaurant(?restaurant $restaurant): static
+    public function setRestaurant(?Restaurant $restaurant): static
     {
         $this->restaurant = $restaurant;
 
         return $this;
     }
 
-    public function getClient(): ?user
+    public function getClient(): ?User
     {
         return $this->client;
     }
 
-    public function setClient(?user $client): static
+    public function setClient(?User $client): static
     {
         $this->client = $client;
 

@@ -24,7 +24,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    public function create(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -38,8 +38,8 @@ class UserController extends AbstractController
         $user->setRoles($data['roles'] ?? ['ROLE_USER']);
         $user->setCreatedAt(new \DateTimeImmutable());
 
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $this->manager->persist($user);
+        $this->manager->flush();
         $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
         $location = $this->generateUrl(
             'app_api_user_show',
@@ -61,6 +61,17 @@ class UserController extends AbstractController
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(UserRepository $userRepository): JsonResponse
     {
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->json(['error' => 'Authentication required'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        if (!in_array('ROLE_ADMIN', $currentUser->getRoles())) {
+            return $this->json(['error' => 'Access denied'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
         $users = $userRepository->findAll();
         $data = $this->serializer->serialize($users, 'json', ['groups' => 'user:read']);
 
