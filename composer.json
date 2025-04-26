@@ -86,7 +86,8 @@
       "importmap:install": "symfony-cmd"
     },
     "post-install-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "composer install --no-dev"
     ],
     "post-update-cmd": [
       "@auto-scripts"
