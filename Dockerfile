@@ -1,39 +1,35 @@
 # Utiliser une image de base PHP avec Composer intégré
-FROM php:8.4-fpm
+FROM php:latest
+
+# Définir les variables d'environnement
+ENV DATABASE_URL=${DATABASE_URL}
+ENV CLOUDINARY_URL=${CLOUDINARY_URL}
 
 # Installer les dépendances nécessaires
 RUN apt-get update && apt-get install -y \
-    libzip-dev \
+    libicu-dev \
+    git \
     unzip \
-    && docker-php-ext-install zip
+    && docker-php-ext-install intl \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony \
+    && symfony -v  # Vérifie que Symfony est bien installé
 
-
-# Installer Symfony CLI
-RUN curl -sS https://get.symfony.com/cli/installer | bash
-RUN mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
-
-# Installer Composer
-RUN curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
+# Copier les fichiers du projet dans le conteneur
+COPY . /var/www/html
 
 # Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Copier les fichiers de l'application
-COPY . .
-
-# Ajout de l'extension intl à l'image PHP
-RUN apt-get update && apt-get install -y libicu-dev && \
-    docker-php-ext-install intl
-
-# Exécuter composer install pendant le build
+# Exécuter Composer pour installer les dépendances
 RUN composer install --no-dev --optimize-autoloader
 
-ENV DATABASE_URL=${DATABASE_URL}
-ENV CLOUDINARY_URL=${CLOUDINARY_URL}
+# Configurer les permissions pour le dossier de cache et logs
+RUN chown -R www-data:www-data /var/www/html/var
 
-# Exposer le port
-EXPOSE 9000
+# Exposer le port pour le serveur Symfony
+EXPOSE 8000
 
-# Démarrer le serveur PHP-FPM
-CMD ["php-fpm"]
+# Démarrer le serveur Symfony
+CMD ["symfony", "server:start", "--no-tls", "--port=8000"]
