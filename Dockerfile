@@ -20,6 +20,9 @@ COPY . .
 # Exécuter composer install pendant le build
 RUN composer install --no-dev --optimize-autoloader
 
+ENV DATABASE_URL=${DATABASE_URL}
+ENV CLOUDINARY_URL=${CLOUDINARY_URL}
+
 # Exposer le port
 EXPOSE 9000
 
