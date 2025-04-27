@@ -18,7 +18,7 @@ variables:
     CLOUDINARY_URL: "%env(CLOUDINARY_URL)%"
 
 relationships:
-  database: "%env(DATABASE_URL)%"
+  database: "mysql:mysql://%env(DATABASE_URL)%"
 
 build:
   flavor: none
