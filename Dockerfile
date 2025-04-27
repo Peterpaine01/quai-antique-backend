@@ -17,6 +17,10 @@ WORKDIR /var/www/html
 # Copier les fichiers de l'application
 COPY . .
 
+# Ajout de l'extension intl à l'image PHP
+RUN apt-get update && apt-get install -y libicu-dev && \
+    docker-php-ext-install intl
+
 # Exécuter composer install pendant le build
 RUN composer install --no-dev --optimize-autoloader
 
