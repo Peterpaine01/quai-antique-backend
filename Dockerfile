@@ -28,8 +28,5 @@ WORKDIR /var/www/html
 # Exécuter Composer pour installer les dépendances
 RUN composer install --no-dev --optimize-autoloader
 
-# Exposer le port pour le serveur Symfony
-EXPOSE 8000
-
 # Démarrer le serveur Symfony
-CMD ["symfony", "server:start", "--no-tls", "--port=8000"]
+CMD ["symfony", "server:start"]
