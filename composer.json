@@ -90,10 +90,6 @@
     "symfony/polyfill-php82": "*"
   },
   "scripts": {
-    "start": [
-      "composer install",
-      "php -S 0.0.0.0:8080 -t public"
-    ],
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
       "assets:install %PUBLIC_DIR%": "symfony-cmd",
