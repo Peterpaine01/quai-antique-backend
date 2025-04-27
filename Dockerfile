@@ -40,6 +40,9 @@ RUN mkdir -p var && chown -R www-data:www-data var
 # Passer à l'utilisateur www-data
 USER www-data
 
+# Vider le cache de Composer pour éviter d'éventuels problèmes de cache corrompu
+RUN composer clear-cache
+
 # Installer les dépendances PHP
 RUN composer install --verbose --prefer-dist --no-progress --no-interaction --no-dev --optimize-autoloader
 
