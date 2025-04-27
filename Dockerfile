@@ -19,14 +19,14 @@ RUN apt-get update && apt-get install -y \
 # Copier les fichiers du projet dans le conteneur
 COPY . /var/www/html
 
+# Créer les répertoires nécessaires, y compris 'var'
+RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var
+
 # Définir le répertoire de travail
 WORKDIR /var/www/html
 
 # Exécuter Composer pour installer les dépendances
 RUN composer install --no-dev --optimize-autoloader
-
-# Configurer les permissions pour le dossier de cache et logs
-RUN chown -R www-data:www-data /var/www/html/var
 
 # Exposer le port pour le serveur Symfony
 EXPOSE 8000
