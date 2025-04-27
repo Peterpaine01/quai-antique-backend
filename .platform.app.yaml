@@ -17,9 +17,6 @@ variables:
     DATABASE_URL: "%env(DATABASE_URL)%"
     CLOUDINARY_URL: "%env(CLOUDINARY_URL)%"
 
-relationships:
-  database: "mysql:mysql://%env(DATABASE_URL)%"
-
 build:
   flavor: none
 
@@ -36,6 +33,9 @@ web:
 
 mounts:
   "/var/cache": { source: local, source_path: var/cache }
+
+relationships:
+  database: "database:mysql"
 
 hooks:
   build: |
