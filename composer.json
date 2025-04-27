@@ -7,7 +7,7 @@
     "php": ">=8.2",
     "ext-ctype": "*",
     "ext-iconv": "*",
-    "alrik11es/cowsayphp": "^1.2",
+    "alrik11es/cowsayphp": "*",
     "cloudinary/cloudinary_php": "^3.1",
     "doctrine/dbal": "^3.9.4",
     "doctrine/doctrine-bundle": "^2.14",
@@ -49,16 +49,7 @@
     "symfony/web-link": ">=7.2",
     "symfony/yaml": ">=7.2.5",
     "twig/extra-bundle": "^2.12|^3.20",
-    "twig/twig": "^2.12|^3.20",
-    "phpunit/phpunit": "^9.6.22",
-    "symfony/browser-kit": ">=7.2.4",
-    "symfony/css-selector": ">=7.2",
-    "symfony/debug-bundle": ">=7.2",
-    "symfony/maker-bundle": "^1.62.1",
-    "symfony/phpunit-bridge": "^7.2",
-    "symfony/stopwatch": ">=7.2.4",
-    "symfony/web-profiler-bundle": ">=7.2.4",
-    "ext-intl": "*"
+    "twig/twig": "^2.12|^3.20"
   },
   "config": {
     "allow-plugins": {
@@ -89,7 +80,19 @@
     "symfony/polyfill-php81": "*",
     "symfony/polyfill-php82": "*"
   },
-  "scripts": {},
+  "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd",
+      "importmap:install": "symfony-cmd"
+    },
+    "post-install-cmd": [
+      "@auto-scripts"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts"
+    ]
+  },
   "conflict": {
     "symfony/symfony": "*"
   },
@@ -100,6 +103,14 @@
     }
   },
   "require-dev": {
-    "heroku/heroku-buildpack-php": ">=265"
+    "phpunit/phpunit": "^9.6.22",
+    "symfony/browser-kit": ">=7.2.4",
+    "symfony/css-selector": ">=7.2",
+    "symfony/debug-bundle": ">=7.2",
+    "symfony/maker-bundle": "^1.62.1",
+    "symfony/phpunit-bridge": "^7.2",
+    "symfony/stopwatch": ">=7.2.4",
+    "symfony/web-profiler-bundle": ">=7.2.4",
+    "heroku/heroku-buildpack-php": "*"
   }
 }

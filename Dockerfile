@@ -1,35 +1,43 @@
-# Utiliser une image de base PHP avec Composer intégré
-FROM php:latest
+FROM php:8.2-cli
+
+# Installer les dépendances système nécessaires
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libicu-dev \
+    libzip-dev \
+    zlib1g-dev \
+    curl \
+    && docker-php-ext-install intl zip
+
+# Installer Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Installer Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
+# Vérifier que Symfony CLI est bien installé
+RUN symfony -v
 
 # Définir les variables d'environnement
 ENV DATABASE_URL=${DATABASE_URL}
 ENV CLOUDINARY_URL=${CLOUDINARY_URL}
 
-# Installer les dépendances nécessaires
-RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    git \
-    unzip \
-    && docker-php-ext-install intl \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && curl -sS https://get.symfony.com/cli/installer | bash \
-    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony \
-    && symfony -v  # Vérifie que Symfony est bien installé
-
-# Copier les fichiers du projet dans le conteneur
-COPY . /var/www/html
-
-# Créer les répertoires nécessaires, y compris 'var'
-RUN mkdir -p /var/www/html/var && chown -R www-data:www-data /var/www/html/var
-
 # Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Exécuter Composer pour installer les dépendances
-RUN composer install --no-dev --optimize-autoloader
+# Copier les fichiers du projet dans le conteneur
+COPY . .
 
-# Exposer le port pour le serveur Symfony
+# Créer les dossiers nécessaires
+RUN mkdir -p var && chown -R www-data:www-data var
+
+# Installer les dépendances PHP
+RUN composer install --verbose --prefer-dist --no-progress --no-interaction --no-dev --optimize-autoloader
+
+# Exposer le port utilisé par le serveur Symfony
 EXPOSE 8080
 
-# Démarrer le serveur Symfony
-CMD ["symfony", "server:start"]
+# Commande pour démarrer le serveur Symfony
+CMD ["symfony", "server:start", "--no-tls", "--port=8080", "--allow-http", "--ansi"]
