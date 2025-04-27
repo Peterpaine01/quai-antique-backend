@@ -29,4 +29,3 @@
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
-.platform.app.yaml

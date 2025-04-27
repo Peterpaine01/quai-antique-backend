@@ -14,8 +14,11 @@ variables:
   php:
     opcache.preload: config/preload.php
   env:
-    DATABASE_URL: "mysql://antique-admin:o2kjb1Ba3hAJ@cf31119-002.eu.clouddb.ovh.net:35920/quai_antique_db"
-    CLOUDINARY_URL: "cloudinary://751321239949728:FC-YNN7ohaaxICISET-mrKy7ERU@djxejhaxr"
+    DATABASE_URL: "%env(DATABASE_URL)%"
+    CLOUDINARY_URL: "%env(CLOUDINARY_URL)%"
+
+relationships:
+  database: "%env(DATABASE_URL)%"
 
 build:
   flavor: none
@@ -28,6 +31,8 @@ web:
       root: "public"
       expires: 1h
       passthru: "/index.php"
+  commands:
+    start: "symfony server:start --no-tls --port=8080 --allow-http --ansi"
 
 mounts:
   "/var/cache": { source: local, source_path: var/cache }
@@ -39,6 +44,8 @@ hooks:
     curl -fs https://get.symfony.com/cloud/configurator | bash
 
     NODE_VERSION=22 symfony-build
+
+    composer install --prefer-dist --no-interaction --optimize-autoloader
 
   deploy: |
     set -x -e
