@@ -33,6 +33,9 @@ COPY . .
 # Créer les dossiers nécessaires
 RUN mkdir -p var && chown -R www-data:www-data var
 
+# Passer à l'utilisateur www-data
+USER www-data
+
 # Installer les dépendances PHP
 RUN composer install --verbose --prefer-dist --no-progress --no-interaction --no-dev --optimize-autoloader
 
