@@ -1,0 +1,68 @@
+services:
+  nginx:
+    container_name: qa-nginx
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    ports:
+      - "81:80"
+    networks:
+      - php-nginx
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - php
+  php:
+    container_name: qa-php
+    build:
+      context: .
+      dockerfile: php.Dockerfile
+    ports:
+      - "9000:9000"
+    networks:
+      - php-nginx
+      - mysql-php
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: qa-mysql
+    image: mysql:latest
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - "35920:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mysql-php
+
+  phpmyadmin:
+    container_name: qa-phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    env_file:
+      - .env.local
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - PMA_HOST=qa-mysql
+    ports:
+      - "8080:80"
+    networks:
+      - mysql-php
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+
+networks:
+  php-nginx:
+  mysql-php:

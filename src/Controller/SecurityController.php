@@ -29,6 +29,15 @@ class SecurityController extends AbstractController
     public function registrer(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
+        $data = json_decode($request->getContent(), true);
+        
+        if (isset($data['firstName'])) {
+            $user->setFirstName($data['firstName']);
+        }
+
+        if (isset($data['lastName'])) {
+            $user->setLastName($data['lastName']);
+        }
         $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
         $user->setCreatedAt(new \DateTimeImmutable());
 
@@ -37,7 +46,7 @@ class SecurityController extends AbstractController
         $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
         $location = $this->generateUrl(
             'app_api_user_show',
-            ['id' => $user->getId()],
+            ['uuid' => $user->getUuid()],
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
@@ -48,7 +57,7 @@ class SecurityController extends AbstractController
             ],
             JsonResponse::HTTP_CREATED,
             ["Location" => $location]
-        );;
+        );
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
