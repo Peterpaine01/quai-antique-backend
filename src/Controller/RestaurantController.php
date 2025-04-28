@@ -87,7 +87,16 @@ class RestaurantController extends AbstractController
                 JsonResponse::HTTP_NOT_FOUND
             );
         }
-        $restaurantData = $this->serializer->serialize($restaurant, 'json', ['groups' => 'restaurant:read']);
+
+        $context = [
+            'groups' => ['restaurant:read', 'booking:read'],
+            'enable_max_depth' => true,
+            'circular_reference_handler' => function ($object) {
+                return $object->getId(); 
+            },
+        ];
+        
+        $restaurantData = $this->serializer->serialize($restaurant, 'json', $context);
 
         return new JsonResponse($restaurantData, JsonResponse::HTTP_OK, [], true);
     }

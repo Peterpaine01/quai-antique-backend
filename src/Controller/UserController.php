@@ -86,8 +86,16 @@ class UserController extends AbstractController
         if (!$user) {
             return $this->json(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
         }
-
-        $userData = $this->serializer->serialize($user, 'json', ['groups' => 'user:read']);
+        
+        $context = [
+            'groups' => ['user:read', 'booking:read'],
+            'enable_max_depth' => true,
+            'circular_reference_handler' => function ($object) {
+                return $object->getUuid(); // ou autre propriété unique
+            },
+        ];
+        
+        $userData = $this->serializer->serialize($user, 'json', $context);
 
         return new JsonResponse($userData, JsonResponse::HTTP_OK, [], true);
     }

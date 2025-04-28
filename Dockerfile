@@ -1,5 +1,9 @@
 FROM php:8.2-cli
 
+# Définir les variables d'environnement
+ENV DATABASE_URL=${DATABASE_URL}
+ENV CLOUDINARY_URL=${CLOUDINARY_URL}
+
 # Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
     git \
@@ -24,9 +28,7 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
 # Vérifier que Symfony CLI est bien installé
 RUN symfony -v
 
-# Définir les variables d'environnement
-ENV DATABASE_URL=${DATABASE_URL}
-ENV CLOUDINARY_URL=${CLOUDINARY_URL}
+
 
 # Définir le répertoire de travail
 WORKDIR /var/www/html

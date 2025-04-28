@@ -87,6 +87,7 @@ class SecurityController extends AbstractController
         return new JsonResponse([
             'message' => 'Login successful',
             'token' => $token,
+            'apiToken' => $user->getApiToken(),
             'roles' => $user->getRoles()
         ]);
     }

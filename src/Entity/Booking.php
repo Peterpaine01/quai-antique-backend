@@ -6,6 +6,7 @@ use App\Repository\BookingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 class Booking
@@ -13,45 +14,46 @@ class Booking
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read', 'restaurant:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::GUID)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?string $uuid = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?int $guestNumber = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?\DateTimeInterface $orderDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?\DateTimeInterface $orderHour = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?string $allergy = null;
 
     #[ORM\Column]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'user:read'])]
     private ?Restaurant $restaurant = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['booking:read'])]
+    #[MaxDepth(1)]
     private ?User $client = null;
 
     public function getId(): ?int
