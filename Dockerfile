@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     curl \
     libpng-dev \
-    libonig-dev \
+    libonig-dev \ 
     libxml2-dev \
     libssl-dev \
     && docker-php-ext-install intl zip pdo pdo_mysql
