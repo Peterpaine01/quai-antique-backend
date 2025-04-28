@@ -93,7 +93,7 @@ class RestaurantController extends AbstractController
             'enable_max_depth' => true,
             'circular_reference_handler' => function ($object) {
                 return $object->getId(); 
-            },
+            }, 
         ];
         
         $restaurantData = $this->serializer->serialize($restaurant, 'json', $context);
