@@ -95,18 +95,22 @@ security:
     - { path: ^/api/logout, roles: ROLE_USER }
 
     # Category
-    - { path: ^/api/category/create, roles: PUBLIC_ADMIN }
+    - { path: ^/api/category/create, roles: PROLE_ADMIN }
     - { path: ^/api/category/show/\d+, roles: PUBLIC_ACCESS }
     - { path: ^/api/category/list, roles: ROLE_ADMIN }
     - { path: ^/api/category/edit/\d+, roles: ROLE_ADMIN }
     - { path: ^/api/category/delete/\d+, roles: ROLE_ADMIN }
 
     # Food
-    - { path: ^/api/food/create, roles: PUBLIC_ADMIN }
+    - { path: ^/api/food/create, roles: ROLE_ADMIN }
     - { path: ^/api/food/show/\d+, roles: PUBLIC_ACCESS }
     - { path: ^/api/food/list, roles: ROLE_ADMIN }
     - { path: ^/api/food/edit/\d+, roles: ROLE_ADMIN }
     - { path: ^/api/food/delete/\d+, roles: ROLE_ADMIN }
+
+    # Account
+    - { path: ^/api/account/me, roles: ROLE_USER }
+    - { path: ^/api/account/edit, roles: ROLE_USER }
 
   role_hierarchy:
     ROLE_ADMIN: [ROLE_USER]
